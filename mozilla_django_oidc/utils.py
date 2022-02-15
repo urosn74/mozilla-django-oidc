@@ -2,6 +2,8 @@ import logging
 import time
 import warnings
 
+from importlib import import_module
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
@@ -97,3 +99,16 @@ def add_state_and_nonce_to_session(request, state, params):
         'nonce': nonce,
         'added_on': time.time(),
     }
+
+
+def resolve_from_name(name):
+    """
+    Performs dynamic import of module and resolves appropriate member from
+    provided dependency name.
+
+    :param name: qualified name
+    :return: module attribute resolved provided name
+    """
+    module_name, attr_name = name.rsplit('.', maxsplit=1)
+    module_ref = import_module(module_name)
+    return getattr(module_ref, attr_name)

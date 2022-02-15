@@ -16,7 +16,8 @@ from josepy.b64 import b64decode
 from josepy.jwk import JWK
 from josepy.jws import JWS, Header
 
-from mozilla_django_oidc.utils import absolutify, import_from_settings
+from mozilla_django_oidc.configuration import OidcConfigurationProvider
+from mozilla_django_oidc.utils import absolutify
 
 LOGGER = logging.getLogger(__name__)
 
@@ -62,7 +63,8 @@ class OIDCAuthenticationBackend(ModelBackend):
 
     @staticmethod
     def get_settings(attr, *args):
-        return import_from_settings(attr, *args)
+        cfg_provider = OidcConfigurationProvider.get_provider()
+        return cfg_provider.get_settings(attr, *args)
 
     def describe_user_by_claims(self, claims):
         email = claims.get('email')
@@ -157,7 +159,7 @@ class OIDCAuthenticationBackend(ModelBackend):
 
         key = None
         for jwk in jwks['keys']:
-            if (import_from_settings("OIDC_VERIFY_KID", True)
+            if (self.get_settings('OIDC_VERIFY_KID', True)
                     and jwk['kid'] != smart_str(header.kid)):
                 continue
             if 'alg' in jwk and jwk['alg'] != smart_str(header.alg):
