@@ -15,6 +15,7 @@ except ImportError:
 from django.utils.module_loading import import_string
 from django.views.generic import View
 
+from mozilla_django_oidc.configuration import OidcConfigurationProvider
 from mozilla_django_oidc.utils import (absolutify,
                                        add_state_and_nonce_to_session,
                                        import_from_settings)
@@ -29,7 +30,8 @@ class OIDCAuthenticationCallbackView(View):
 
     @staticmethod
     def get_settings(attr, *args):
-        return import_from_settings(attr, *args)
+        cfg_provider = OidcConfigurationProvider.get_provider()
+        return cfg_provider.get_settings(attr, *args)
 
     @property
     def failure_url(self):
@@ -157,7 +159,8 @@ class OIDCAuthenticationRequestView(View):
 
     @staticmethod
     def get_settings(attr, *args):
-        return import_from_settings(attr, *args)
+        cfg_provider = OidcConfigurationProvider.get_provider()
+        return cfg_provider.get_settings(attr, *args)
 
     def get(self, request):
         """OIDC client authentication initialization HTTP endpoint"""
@@ -204,7 +207,8 @@ class OIDCLogoutView(View):
 
     @staticmethod
     def get_settings(attr, *args):
-        return import_from_settings(attr, *args)
+        cfg_provider = OidcConfigurationProvider.get_provider()
+        return cfg_provider.get_settings(attr, *args)
 
     @property
     def redirect_url(self):

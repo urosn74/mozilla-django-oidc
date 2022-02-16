@@ -10,6 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
+from mozilla_django_oidc.configuration import OidcConfigurationProvider
 from mozilla_django_oidc.utils import (absolutify,
                                        add_state_and_nonce_to_session,
                                        import_from_settings)
@@ -51,7 +52,8 @@ class SessionRefresh(MiddlewareMixin):
 
     @staticmethod
     def get_settings(attr, *args):
-        return import_from_settings(attr, *args)
+        cfg_provider = OidcConfigurationProvider.get_provider()
+        return cfg_provider.get_settings(attr, *args)
 
     @cached_property
     def exempt_urls(self):
