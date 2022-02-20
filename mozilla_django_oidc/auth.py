@@ -212,6 +212,14 @@ class OIDCAuthenticationBackend(ModelBackend):
             raise SuspiciousOperation(msg)
         return payload
 
+    def verify_token_claims(self, token):
+        """Inspect token claims and return True if conditions and constrains
+           are fulfiled. Othervise return False and prevent user from being
+           authenticated.
+           Default behaviour is to return True. Override in derived backend
+           implementation to change this behaviour."""
+        return True
+
     def get_token(self, payload):
         """Return token object as a dictionary."""
 
@@ -285,7 +293,7 @@ class OIDCAuthenticationBackend(ModelBackend):
         # Validate the token
         payload = self.verify_token(id_token, nonce=nonce)
 
-        if payload:
+        if payload and self.verify_token_claims(payload):
             self.store_tokens(access_token, id_token)
             try:
                 return self.get_or_create_user(access_token, id_token, payload)
